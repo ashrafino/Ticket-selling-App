@@ -7,11 +7,12 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import PaidIcon from '@mui/icons-material/Paid';
 import VerifiedIcon from '@mui/icons-material/Verified';
+import GroupIcon from '@mui/icons-material/Group';
 
 const TICKET_PRICE = 50;
 
@@ -47,25 +48,23 @@ export default function AdminDashboard() {
   }
 
   const stats = [
-    { label: 'Total Tickets', value: tickets.length, icon: <ConfirmationNumberIcon />, color: '#00d4ff' },
-    { label: 'Total Revenue', value: `${totalRevenue} MAD`, icon: <PaidIcon />, color: '#22c55e' },
-    { label: 'Verified', value: `${verifiedCount} / ${tickets.length}`, icon: <VerifiedIcon />, color: '#a855f7' },
+    { label: 'Tickets sold', value: tickets.length, icon: <ConfirmationNumberIcon fontSize="small" />, color: '#7c5cfc' },
+    { label: 'Revenue', value: `${totalRevenue} MAD`, icon: <PaidIcon fontSize="small" />, color: '#3ecf8e' },
+    { label: 'Verified', value: `${verifiedCount}/${tickets.length}`, icon: <VerifiedIcon fontSize="small" />, color: '#e0943a' },
   ];
 
   return (
-    <Box sx={{ minHeight: '100vh' }} className="bg-mesh">
+    <Box sx={{ minHeight: '100vh', bgcolor: '#0B0E14' }}>
       <Navbar />
       <Container maxWidth="lg" sx={{ py: { xs: 3, sm: 4 } }}>
         {/* Header */}
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2, mb: 4 }} className="animate-slide-up">
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: 2, mb: 4 }} className="animate-slide-up">
           <Box>
-            <Typography variant="h4" sx={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
-              Admin <span className="gradient-text">Dashboard</span>
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>Overview of all sales</Typography>
+            <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>Dashboard</Typography>
+            <Typography variant="body2" sx={{ color: '#8B8B9E', mt: 0.5 }}>Overview of all sales and sellers</Typography>
           </Box>
           <Button component={Link} to="/admin/scanner" id="open-scanner-btn"
-            variant="contained" color="primary" startIcon={<QrCodeScannerIcon />}>
+            variant="contained" color="primary" startIcon={<QrCodeScannerIcon />} sx={{ alignSelf: { xs: 'flex-start', sm: 'auto' } }}>
             QR Scanner
           </Button>
         </Box>
@@ -74,84 +73,74 @@ export default function AdminDashboard() {
         <Grid container spacing={2} sx={{ mb: 4 }}>
           {stats.map((s, i) => (
             <Grid size={{ xs: 12, sm: 4 }} key={i}>
-              <Paper className="animate-slide-up" sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: '1px solid rgba(0,212,255,0.12)', animationDelay: `${0.1 * (i + 1)}s` }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
-                  <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: `${s.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.color }}>
+              <Paper className="animate-slide-up" sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 2.5, animationDelay: `${0.05 * (i + 1)}s` }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                  <Box sx={{ width: 32, height: 32, borderRadius: 1.5, bgcolor: `${s.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.color }}>
                     {s.icon}
                   </Box>
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>{s.label}</Typography>
+                  <Typography variant="caption" sx={{ color: '#8B8B9E' }}>{s.label}</Typography>
                 </Box>
-                <Typography variant="h4" sx={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: { xs: '1.4rem', sm: '2rem' } }}>{s.value}</Typography>
+                <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: { xs: '1.3rem', sm: '1.5rem' } }}>{s.value}</Typography>
               </Paper>
             </Grid>
           ))}
         </Grid>
 
         {/* Sellers */}
-        <Paper className="animate-slide-up" sx={{ borderRadius: 3, border: '1px solid rgba(0,212,255,0.12)', overflow: 'hidden', mb: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 3, py: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            <Typography variant="h6" sx={{ fontFamily: 'Outfit', fontWeight: 600 }}>Sellers</Typography>
+        <Paper className="animate-slide-up" sx={{ borderRadius: 2.5, overflow: 'hidden', mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2.5, py: 2, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+            <Typography variant="subtitle2" sx={{ fontFamily: 'Outfit', fontWeight: 600 }}>Sellers</Typography>
             <Button id="create-seller-btn" variant="contained" color="primary" size="small" startIcon={<AddIcon />}
-              onClick={() => setShowCreateSeller(!showCreateSeller)}>Add Seller</Button>
+              onClick={() => setShowCreateSeller(!showCreateSeller)} sx={{ fontSize: '0.75rem', px: 1.5, py: 0.6 }}>Add</Button>
           </Box>
 
           {showCreateSeller && (
-            <Box sx={{ px: 3, py: 2.5, borderBottom: '1px solid rgba(255,255,255,0.05)', bgcolor: 'rgba(255,255,255,0.01)' }} className="animate-fade-in">
+            <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid rgba(255,255,255,0.04)', bgcolor: 'rgba(255,255,255,0.01)' }} className="animate-fade-in">
               <form onSubmit={handleCreateSeller}>
-                {sellerError && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{sellerError}</Alert>}
-                <Grid container spacing={2} sx={{ mb: 2 }}>
-                  <Grid size={{ xs: 12, sm: 4 }}>
-                    <TextField id="seller-name-input" label="Display Name" value={sellerForm.displayName}
-                      onChange={e => setSellerForm(p => ({ ...p, displayName: e.target.value }))} fullWidth required size="small" />
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 4 }}>
-                    <TextField id="seller-email-input" label="Email" type="email" value={sellerForm.email}
-                      onChange={e => setSellerForm(p => ({ ...p, email: e.target.value }))} fullWidth required size="small" />
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 4 }}>
-                    <TextField id="seller-password-input" label="Password" type="password" value={sellerForm.password}
-                      onChange={e => setSellerForm(p => ({ ...p, password: e.target.value }))} fullWidth required size="small" />
-                  </Grid>
+                {sellerError && <Alert severity="error" sx={{ mb: 2 }}>{sellerError}</Alert>}
+                <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
+                  <Grid size={{ xs: 12, sm: 4 }}><TextField id="seller-name-input" label="Name" value={sellerForm.displayName} onChange={e => setSellerForm(p => ({ ...p, displayName: e.target.value }))} fullWidth required size="small" /></Grid>
+                  <Grid size={{ xs: 12, sm: 4 }}><TextField id="seller-email-input" label="Email" type="email" value={sellerForm.email} onChange={e => setSellerForm(p => ({ ...p, email: e.target.value }))} fullWidth required size="small" /></Grid>
+                  <Grid size={{ xs: 12, sm: 4 }}><TextField id="seller-password-input" label="Password" type="password" value={sellerForm.password} onChange={e => setSellerForm(p => ({ ...p, password: e.target.value }))} fullWidth required size="small" /></Grid>
                 </Grid>
-                <Box sx={{ display: 'flex', gap: 1.5 }}>
-                  <Button type="submit" variant="contained" color="success" size="small">Create Seller</Button>
-                  <Button onClick={() => setShowCreateSeller(false)} variant="outlined" size="small"
-                    sx={{ borderColor: 'rgba(255,255,255,0.15)', color: 'text.secondary' }}>Cancel</Button>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button type="submit" variant="contained" color="success" size="small" sx={{ fontSize: '0.75rem' }}>Create</Button>
+                  <Button onClick={() => setShowCreateSeller(false)} size="small" sx={{ color: '#8B8B9E', fontSize: '0.75rem' }}>Cancel</Button>
                 </Box>
               </form>
             </Box>
           )}
 
           {sellers.length === 0 ? (
-            <Box sx={{ p: 5, textAlign: 'center', color: 'text.secondary' }}>
-              <Typography sx={{ fontSize: '2.5rem', mb: 1 }}>👥</Typography>
-              <Typography>No sellers yet. Create one above!</Typography>
+            <Box sx={{ py: 5, textAlign: 'center' }}>
+              <GroupIcon sx={{ fontSize: 32, color: '#4A4A5A', mb: 1 }} />
+              <Typography variant="body2" sx={{ color: '#8B8B9E' }}>No sellers yet</Typography>
             </Box>
           ) : (
             <TableContainer>
-              <Table>
+              <Table size="small">
                 <TableHead>
                   <TableRow>
                     <TableCell>Name</TableCell>
                     <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
                     <TableCell align="center">Tickets</TableCell>
                     <TableCell align="center">Revenue</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell align="right" sx={{ width: 48 }}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {sellerStats.map(s => (
                     <TableRow key={s.id} hover>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>{s.displayName}</Typography>
-                        <Typography variant="caption" sx={{ color: 'text.secondary', display: { xs: 'block', sm: 'none' } }}>{s.email}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.8rem' }}>{s.displayName}</Typography>
+                        <Typography variant="caption" sx={{ color: '#8B8B9E', display: { xs: 'block', sm: 'none' }, fontSize: '0.65rem' }}>{s.email}</Typography>
                       </TableCell>
-                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, color: 'text.secondary' }}>{s.email}</TableCell>
-                      <TableCell align="center">{s.ticketCount}</TableCell>
-                      <TableCell align="center" sx={{ color: '#22c55e', fontWeight: 600 }}>{s.revenue} MAD</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, color: '#8B8B9E', fontSize: '0.8rem' }}>{s.email}</TableCell>
+                      <TableCell align="center" sx={{ fontSize: '0.8rem' }}>{s.ticketCount}</TableCell>
+                      <TableCell align="center" sx={{ color: '#3ecf8e', fontWeight: 600, fontSize: '0.8rem' }}>{s.revenue} MAD</TableCell>
                       <TableCell align="right">
-                        <IconButton onClick={() => handleDeleteSeller(s.id)} size="small" sx={{ color: 'rgba(239,68,68,0.5)', '&:hover': { color: '#ef4444' } }}>
-                          <DeleteIcon fontSize="small" />
+                        <IconButton onClick={() => handleDeleteSeller(s.id)} size="small" sx={{ color: '#4A4A5A', '&:hover': { color: '#f75555' } }}>
+                          <DeleteOutlineIcon fontSize="small" />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -163,18 +152,18 @@ export default function AdminDashboard() {
         </Paper>
 
         {/* All Tickets */}
-        <Paper className="animate-slide-up" sx={{ borderRadius: 3, border: '1px solid rgba(0,212,255,0.12)', overflow: 'hidden' }}>
-          <Box sx={{ px: 3, py: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            <Typography variant="h6" sx={{ fontFamily: 'Outfit', fontWeight: 600 }}>All Tickets</Typography>
+        <Paper className="animate-slide-up" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
+          <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+            <Typography variant="subtitle2" sx={{ fontFamily: 'Outfit', fontWeight: 600 }}>All tickets</Typography>
           </Box>
           {tickets.length === 0 ? (
-            <Box sx={{ p: 5, textAlign: 'center', color: 'text.secondary' }}>
-              <Typography sx={{ fontSize: '2.5rem', mb: 1 }}>🎫</Typography>
-              <Typography>No tickets created yet.</Typography>
+            <Box sx={{ py: 5, textAlign: 'center' }}>
+              <ConfirmationNumberIcon sx={{ fontSize: 32, color: '#4A4A5A', mb: 1 }} />
+              <Typography variant="body2" sx={{ color: '#8B8B9E' }}>No tickets yet</Typography>
             </Box>
           ) : (
             <TableContainer>
-              <Table>
+              <Table size="small">
                 <TableHead>
                   <TableRow>
                     <TableCell>Buyer</TableCell>
@@ -188,21 +177,22 @@ export default function AdminDashboard() {
                   {tickets.map(t => (
                     <TableRow key={t.id} hover>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>{t.buyerName}</Typography>
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>{t.phone}</Typography>
-                        <Typography variant="caption" sx={{ color: 'text.secondary', display: { xs: 'block', md: 'none' } }}>{t.filiere}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.8rem' }}>{t.buyerName}</Typography>
+                        <Typography variant="caption" sx={{ color: '#8B8B9E', fontSize: '0.65rem' }}>{t.phone}</Typography>
+                        <Typography variant="caption" sx={{ color: '#8B8B9E', display: { xs: 'block', md: 'none' }, fontSize: '0.65rem' }}>{t.filiere}</Typography>
                       </TableCell>
-                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, color: 'text.secondary' }}>{t.filiere}</TableCell>
-                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, color: 'text.secondary', maxWidth: 200 }}>
-                        <Typography variant="body2" noWrap>{t.games?.join(', ')}</Typography>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, color: '#8B8B9E', fontSize: '0.8rem' }}>{t.filiere}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, color: '#8B8B9E', maxWidth: 180 }}>
+                        <Typography variant="body2" noWrap sx={{ fontSize: '0.78rem' }}>{t.games?.join(', ')}</Typography>
                       </TableCell>
-                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, color: 'text.secondary' }}>{t.sellerName}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, color: '#8B8B9E', fontSize: '0.8rem' }}>{t.sellerName}</TableCell>
                       <TableCell align="center">
-                        <Chip label={t.verified ? '✓ Verified' : 'Active'} size="small"
+                        <Chip label={t.verified ? 'Verified' : 'Active'} size="small"
                           sx={{
-                            bgcolor: t.verified ? 'rgba(34,197,94,0.1)' : 'rgba(0,212,255,0.1)',
-                            color: t.verified ? '#22c55e' : '#00d4ff',
-                            border: `1px solid ${t.verified ? 'rgba(34,197,94,0.2)' : 'rgba(0,212,255,0.2)'}`,
+                            bgcolor: t.verified ? 'rgba(62,207,142,0.1)' : 'rgba(124,92,252,0.1)',
+                            color: t.verified ? '#3ecf8e' : '#7c5cfc',
+                            border: `1px solid ${t.verified ? 'rgba(62,207,142,0.12)' : 'rgba(124,92,252,0.12)'}`,
+                            height: 22, fontSize: '0.7rem',
                           }} />
                       </TableCell>
                     </TableRow>

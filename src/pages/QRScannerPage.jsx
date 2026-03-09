@@ -7,6 +7,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import ReplayIcon from '@mui/icons-material/Replay';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 export default function QRScannerPage() {
   const navigate = useNavigate();
@@ -28,11 +31,10 @@ export default function QRScannerPage() {
         async (decodedText) => {
           try { await html5QrCode.stop(); } catch (_) {}
           setScanning(false); handleScanResult(decodedText);
-        },
-        () => {}
+        }, () => {}
       );
-    } catch (err) {
-      setError('Unable to access camera. Please grant camera permission.');
+    } catch {
+      setError('Camera access denied. Please allow camera permissions.');
       setScanning(false);
     }
   }
@@ -48,54 +50,46 @@ export default function QRScannerPage() {
       });
     } catch {
       const result = verifyTicket(decodedText);
-      setScanResult(result.ticket
-        ? { status: result.status, ticketId: decodedText, ticket: result.ticket }
-        : { status: 'not_found', ticketId: decodedText });
+      setScanResult(result.ticket ? { status: result.status, ticketId: decodedText, ticket: result.ticket } : { status: 'not_found', ticketId: decodedText });
     }
   }
 
   useEffect(() => () => { if (html5QrCodeRef.current) try { html5QrCodeRef.current.stop(); } catch (_) {} }, []);
 
   const statusConfig = {
-    valid: { icon: '✅', title: 'Ticket Valid!', subtitle: 'Entry confirmed', color: '#22c55e', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.25)' },
-    already_used: { icon: '⚠️', title: 'Already Used', subtitle: 'This ticket was already verified', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)' },
-    not_found: { icon: '❌', title: 'Not Found', subtitle: 'Not a valid ticket QR code', color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.25)' },
+    valid: { icon: <CheckCircleIcon sx={{ fontSize: 48, color: '#3ecf8e' }} />, title: 'Valid ticket', subtitle: 'Entry confirmed', bg: 'rgba(62,207,142,0.06)', border: 'rgba(62,207,142,0.15)' },
+    already_used: { icon: <WarningAmberIcon sx={{ fontSize: 48, color: '#e8a838' }} />, title: 'Already scanned', subtitle: 'This ticket was already verified', bg: 'rgba(232,168,56,0.06)', border: 'rgba(232,168,56,0.15)' },
+    not_found: { icon: <CancelIcon sx={{ fontSize: 48, color: '#f75555' }} />, title: 'Invalid', subtitle: 'This is not a valid ticket', bg: 'rgba(247,85,85,0.06)', border: 'rgba(247,85,85,0.15)' },
   };
 
   return (
-    <Box sx={{ minHeight: '100vh' }} className="bg-mesh">
+    <Box sx={{ minHeight: '100vh', bgcolor: '#0B0E14' }}>
       <Navbar />
       <Container maxWidth="sm" sx={{ py: { xs: 3, sm: 4 } }}>
         <Box sx={{ mb: 3 }} className="animate-slide-up">
-          <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/admin')}
-            sx={{ color: 'text.secondary', mb: 2, '&:hover': { color: '#fff' } }}>Back to Dashboard</Button>
-          <Typography variant="h4" sx={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
-            QR <span className="gradient-text">Scanner</span>
+          <Button startIcon={<ArrowBackIcon />} size="small" onClick={() => navigate('/admin')}
+            sx={{ color: '#8B8B9E', mb: 2, '&:hover': { color: '#E8E8ED' } }}>Back</Button>
+          <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
+            QR Scanner
           </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>Scan tickets to verify entry</Typography>
+          <Typography variant="body2" sx={{ color: '#8B8B9E', mt: 0.5 }}>Scan tickets to verify entry</Typography>
         </Box>
 
         {!scanResult && (
-          <Box className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <Paper sx={{ borderRadius: 3, border: '1px solid rgba(0,212,255,0.12)', overflow: 'hidden' }}>
+          <Box className="animate-slide-up" style={{ animationDelay: '0.05s' }}>
+            <Paper sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
               <div id="qr-reader" ref={scannerRef} style={{ width: '100%', minHeight: scanning ? 300 : 0 }} />
               {!scanning && (
                 <Box sx={{ p: { xs: 4, sm: 5 }, textAlign: 'center' }}>
-                  <Box sx={{
-                    width: 72, height: 72, mx: 'auto', mb: 3, borderRadius: 3,
-                    background: 'linear-gradient(135deg, rgba(0,212,255,0.1), rgba(168,85,247,0.1))',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <CameraAltIcon sx={{ fontSize: 36, color: '#00d4ff' }} />
-                  </Box>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>Point your camera at a ticket QR code</Typography>
+                  <CameraAltIcon sx={{ fontSize: 40, color: '#4A4A5A', mb: 2 }} />
+                  <Typography variant="body2" sx={{ color: '#8B8B9E', mb: 3 }}>Point your camera at a ticket QR code</Typography>
                   <Button id="start-scan-btn" variant="contained" color="primary" startIcon={<CameraAltIcon />} onClick={startScanner}>
-                    Start Scanning
+                    Start scanning
                   </Button>
                 </Box>
               )}
             </Paper>
-            {error && <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>{error}</Alert>}
+            {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
           </Box>
         )}
 
@@ -104,40 +98,40 @@ export default function QRScannerPage() {
             {(() => {
               const cfg = statusConfig[scanResult.status];
               return (
-                <Paper sx={{ p: { xs: 3, sm: 4 }, borderRadius: 3, bgcolor: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                <Paper sx={{ p: { xs: 3, sm: 4 }, borderRadius: 2.5, bgcolor: cfg.bg, border: `1px solid ${cfg.border}` }}>
                   <Box sx={{ textAlign: 'center', mb: 3 }}>
-                    <Typography sx={{ fontSize: '3.5rem', mb: 1 }}>{cfg.icon}</Typography>
-                    <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 700, color: cfg.color }}>{cfg.title}</Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>{cfg.subtitle}</Typography>
+                    {cfg.icon}
+                    <Typography variant="h6" sx={{ fontFamily: 'Outfit', fontWeight: 700, mt: 1.5 }}>{cfg.title}</Typography>
+                    <Typography variant="body2" sx={{ color: '#8B8B9E', mt: 0.5, fontSize: '0.8rem' }}>{cfg.subtitle}</Typography>
                   </Box>
                   {scanResult.ticket && (
-                    <Paper sx={{ p: 2.5, borderRadius: 2, bgcolor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <Paper sx={{ p: 2, borderRadius: 2, bgcolor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                       {[
                         ['Name', scanResult.ticket.buyerName],
                         ['Filière', scanResult.ticket.filiere],
                         ['Activities', scanResult.ticket.games?.join(', ')],
                         scanResult.ticket.sellerName && ['Seller', scanResult.ticket.sellerName],
                       ].filter(Boolean).map(([label, val]) => (
-                        <Box key={label} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.8 }}>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{label}</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600, textAlign: 'right' }}>{val}</Typography>
+                        <Box key={label} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.6 }}>
+                          <Typography variant="caption" sx={{ color: '#8B8B9E' }}>{label}</Typography>
+                          <Typography variant="caption" sx={{ fontWeight: 600, textAlign: 'right' }}>{val}</Typography>
                         </Box>
                       ))}
                     </Paper>
                   )}
                   {scanResult.ticketId && (
-                    <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 2, color: 'text.disabled', fontFamily: 'monospace' }}>
-                      ID: {scanResult.ticketId.slice(0, 12).toUpperCase()}
+                    <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 2, color: '#4A4A5A', fontFamily: 'monospace', fontSize: '0.65rem' }}>
+                      {scanResult.ticketId.slice(0, 12).toUpperCase()}
                     </Typography>
                   )}
                 </Paper>
               );
             })()}
             <Box sx={{ display: 'flex', gap: 1.5, mt: 3 }}>
-              <Button id="scan-again-btn" variant="contained" color="primary" fullWidth
-                startIcon={<ReplayIcon />} onClick={() => { setScanResult(null); startScanner() }}>Scan Again</Button>
+              <Button id="scan-again-btn" variant="contained" color="primary" fullWidth startIcon={<ReplayIcon />}
+                onClick={() => { setScanResult(null); startScanner(); }}>Scan again</Button>
               <Button variant="outlined" fullWidth startIcon={<DashboardIcon />} onClick={() => navigate('/admin')}
-                sx={{ borderColor: 'rgba(255,255,255,0.15)', color: 'text.secondary' }}>Dashboard</Button>
+                sx={{ borderColor: 'rgba(255,255,255,0.1)', color: '#8B8B9E' }}>Dashboard</Button>
             </Box>
           </Box>
         )}

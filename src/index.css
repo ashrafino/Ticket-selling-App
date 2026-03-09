@@ -2,128 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Base ──────────────────────────────────────── */
 @layer base {
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
   body {
-    background-color: #0a0a1a;
-    min-height: 100vh;
+    @apply bg-surface text-white antialiased;
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
   }
 
-  ::-webkit-scrollbar {
-    width: 6px;
+  ::selection {
+    background-color: rgba(124, 92, 252, 0.3);
+    color: white;
   }
 
-  ::-webkit-scrollbar-track {
-    background: #0f0f2e;
-  }
-
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #a855f7, #00d4ff);
+    background: rgba(255,255,255,0.08);
     border-radius: 3px;
   }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
 }
 
+/* ─── Components ────────────────────────────────── */
 @layer components {
-  .glass-card {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl;
-  }
-
-  .neon-border {
-    @apply border border-neon-blue/30 shadow-[0_0_15px_rgba(0,212,255,0.15)];
-  }
-
-  .neon-glow {
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2), 0 0 40px rgba(168, 85, 247, 0.1);
-  }
-
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink;
-  }
-
-  .btn-primary {
-    @apply relative overflow-hidden px-6 py-3 rounded-xl font-semibold text-white
-           bg-gradient-to-r from-primary-600 to-neon-purple
-           hover:from-primary-500 hover:to-neon-purple
-           transition-all duration-300 transform hover:scale-[1.02]
-           shadow-lg hover:shadow-neon-purple/25
-           active:scale-95;
-  }
-
-  .btn-primary::before {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-neon-blue/20 to-neon-purple/20 opacity-0 transition-opacity duration-300;
-  }
-
-  .btn-primary:hover::before {
-    @apply opacity-100;
-  }
-
-  .btn-secondary {
-    @apply px-6 py-3 rounded-xl font-semibold text-white/80
-           bg-white/5 border border-white/10
-           hover:bg-white/10 hover:border-white/20 hover:text-white
-           transition-all duration-300 active:scale-95;
-  }
-
-  .btn-success {
-    @apply px-6 py-3 rounded-xl font-semibold text-white
-           bg-gradient-to-r from-emerald-600 to-emerald-500
-           hover:from-emerald-500 hover:to-emerald-400
-           transition-all duration-300 transform hover:scale-[1.02]
-           shadow-lg hover:shadow-emerald-500/25
-           active:scale-95;
-  }
-
-  .btn-danger {
-    @apply px-6 py-3 rounded-xl font-semibold text-white
-           bg-gradient-to-r from-red-600 to-red-500
-           hover:from-red-500 hover:to-red-400
-           transition-all duration-300 transform hover:scale-[1.02]
-           shadow-lg hover:shadow-red-500/25
-           active:scale-95;
-  }
-
-  .input-field {
-    @apply w-full px-4 py-3 rounded-xl
-           bg-white/5 border border-white/10
-           text-white placeholder-white/30
-           focus:outline-none focus:border-neon-blue/50 focus:ring-2 focus:ring-neon-blue/20
-           transition-all duration-300;
-  }
-
-  .select-field {
-    @apply w-full px-4 py-3 rounded-xl
-           bg-white/5 border border-white/10
-           text-white
-           focus:outline-none focus:border-neon-blue/50 focus:ring-2 focus:ring-neon-blue/20
-           transition-all duration-300 appearance-none cursor-pointer;
-  }
-
-  .stat-card {
-    @apply glass-card p-6 neon-border hover:border-neon-blue/50 transition-all duration-300;
-  }
-
-  .ticket-perforation {
-    background-image: radial-gradient(circle, #0a0a1a 6px, transparent 6px);
-    background-size: 20px 20px;
-    background-position: -10px 0;
-  }
-}
-
-@layer utilities {
-  .text-shadow-glow {
-    text-shadow: 0 0 20px rgba(0, 212, 255, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
-  }
-
-  .bg-mesh {
-    background-image:
-      radial-gradient(at 40% 20%, rgba(168, 85, 247, 0.15) 0, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(0, 212, 255, 0.1) 0, transparent 50%),
-      radial-gradient(at 0% 50%, rgba(236, 72, 153, 0.1) 0, transparent 50%);
+  .accent-text {
+    background: linear-gradient(135deg, #7c5cfc, #9b85fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
