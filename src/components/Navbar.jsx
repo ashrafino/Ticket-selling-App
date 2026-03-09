@@ -10,7 +10,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import LogoutIcon from '@mui/icons-material/Logout';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 
 export default function Navbar() {
   const { userRole, userData, logout } = useAuth();
@@ -46,11 +45,8 @@ export default function Navbar() {
           )}
 
           <Link to={basePath} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Box sx={{
-              width: 32, height: 32, borderRadius: 1.5,
-              bgcolor: '#7c5cfc', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <SportsEsportsIcon sx={{ fontSize: 18, color: '#fff' }} />
+            <Box sx={{ width: 32, height: 32, borderRadius: 1.5, overflow: 'hidden', flexShrink: 0 }}>
+              <img src="/icon.png" alt="GameTix" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </Box>
             <Typography variant="h6" sx={{
               display: { xs: 'none', sm: 'block' }, fontFamily: 'Outfit',
@@ -106,8 +102,8 @@ export default function Navbar() {
       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}
         PaperProps={{ sx: { bgcolor: '#12151E', width: 240, borderRight: '1px solid rgba(255,255,255,0.06)' } }}>
         <Box sx={{ p: 2.5, borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box sx={{ width: 28, height: 28, borderRadius: 1, bgcolor: '#7c5cfc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <SportsEsportsIcon sx={{ fontSize: 16, color: '#fff' }} />
+          <Box sx={{ width: 28, height: 28, borderRadius: 1, overflow: 'hidden' }}>
+            <img src="/icon.png" alt="GameTix" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </Box>
           <Typography variant="body2" sx={{ fontFamily: 'Outfit', fontWeight: 700, color: '#E8E8ED' }}>GameTix</Typography>
         </Box>

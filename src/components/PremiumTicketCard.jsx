@@ -3,7 +3,6 @@ import { QRCodeSVG } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import { Box, Typography, Button, Chip, CircularProgress } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 export default function PremiumTicketCard({ ticket, ticketId }) {
@@ -76,8 +75,8 @@ export default function PremiumTicketCard({ ticket, ticketId }) {
           {/* Header */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 28, height: 28, borderRadius: 1, bgcolor: '#7c5cfc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <SportsEsportsIcon sx={{ fontSize: 16, color: '#fff' }} />
+              <Box sx={{ width: 28, height: 28, borderRadius: 1, overflow: 'hidden' }}>
+                <img src="/icon.png" alt="GameTix" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </Box>
               <Box>
                 <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.85rem', letterSpacing: '-0.01em' }}>GameTix</Typography>

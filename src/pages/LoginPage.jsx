@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Box, Container, TextField, Button, Alert, Typography, Paper } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -32,11 +31,8 @@ export default function LoginPage() {
         <Box className="animate-slide-up">
           {/* Logo */}
           <Box sx={{ textAlign: 'center', mb: 5 }}>
-            <Box sx={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 48, height: 48, borderRadius: 2.5, bgcolor: '#7c5cfc', mb: 2,
-            }}>
-              <SportsEsportsIcon sx={{ fontSize: 24, color: '#fff' }} />
+            <Box sx={{ display: 'inline-block', width: 56, height: 56, borderRadius: 2.5, overflow: 'hidden', mb: 2 }}>
+              <img src="/icon.png" alt="GameTix" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </Box>
             <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 700, color: '#E8E8ED', letterSpacing: '-0.02em' }}>
               GameTix
