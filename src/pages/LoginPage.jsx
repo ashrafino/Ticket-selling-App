@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import {
+  Box, Container, TextField, Button, Alert, Typography, Paper,
+} from '@mui/material';
+import LoginIcon from '@mui/icons-material/Login';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -14,7 +18,6 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const user = login(email, password);
       navigate(user.role === 'admin' ? '/admin' : '/seller');
@@ -25,85 +28,81 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-dark-900 bg-mesh px-4">
-      {/* Decorative elements */}
-      <div className="absolute top-20 left-20 w-72 h-72 bg-neon-purple/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-neon-blue/10 rounded-full blur-[120px] pointer-events-none" />
+    <Box className="bg-mesh" sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2 }}>
+      {/* Decorative blurs */}
+      <Box sx={{ position: 'absolute', top: 80, left: 80, width: 300, height: 300, bgcolor: 'rgba(168,85,247,0.1)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
+      <Box sx={{ position: 'absolute', bottom: 80, right: 80, width: 380, height: 380, bgcolor: 'rgba(0,212,255,0.1)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
 
-      <div className="w-full max-w-md animate-slide-up relative z-10">
-        {/* Logo / Title */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-blue to-neon-purple mb-4 shadow-lg shadow-neon-purple/20">
-            <span className="text-2xl">🎮</span>
-          </div>
-          <h1 className="text-3xl font-display font-bold gradient-text">GameTix</h1>
-          <p className="text-white/40 mt-1">University Gaming & Chill Event</p>
-        </div>
+      <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 1 }}>
+        <Box className="animate-slide-up">
+          {/* Logo */}
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Box sx={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: 64, height: 64, borderRadius: 3,
+              background: 'linear-gradient(135deg, #00d4ff, #a855f7)',
+              mb: 2, boxShadow: '0 8px 25px rgba(168,85,247,0.25)',
+            }}>
+              <span className="text-2xl">🎮</span>
+            </Box>
+            <Typography variant="h4" className="gradient-text" sx={{ fontFamily: 'Outfit', fontWeight: 800 }}>
+              GameTix
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.4)', mt: 0.5 }}>
+              University Gaming & Chill Event
+            </Typography>
+          </Box>
 
-        {/* Login Card */}
-        <div className="glass-card neon-border p-8">
-          <h2 className="text-xl font-display font-semibold text-white mb-6">Welcome back</h2>
+          {/* Login Card */}
+          <Paper sx={{ p: { xs: 3, sm: 4 }, borderRadius: 3, border: '1px solid rgba(0,212,255,0.15)', boxShadow: '0 0 15px rgba(0,212,255,0.08)' }}>
+            <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 600, mb: 3 }}>
+              Welcome back
+            </Typography>
 
-          {error && (
-            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm animate-fade-in">
-              {error}
-            </div>
-          )}
+            {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-2">Email</label>
-              <input
-                id="login-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
+            <form onSubmit={handleSubmit}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                <TextField
+                  id="login-email"
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  fullWidth required
+                />
+                <TextField
+                  id="login-password"
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  fullWidth required
+                />
+                <Button
+                  id="login-submit"
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  disabled={loading}
+                  startIcon={loading ? null : <LoginIcon />}
+                  fullWidth
+                  sx={{ py: 1.5 }}
+                >
+                  {loading ? 'Signing in...' : 'Sign In'}
+                </Button>
+              </Box>
+            </form>
+          </Paper>
 
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-2">Password</label>
-              <input
-                id="login-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            <button
-              id="login-submit"
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                  </svg>
-                  Sign In
-                </>
-              )}
-            </button>
-          </form>
-        </div>
-
-        <p className="text-center text-white/20 text-sm mt-6">
-          © 2026 GameTix · All rights reserved
-        </p>
-      </div>
-    </div>
+          <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', color: 'rgba(255,255,255,0.2)', mt: 4 }}>
+            © 2026 GameTix · All rights reserved
+          </Typography>
+        </Box>
+      </Container>
+    </Box>
   );
 }

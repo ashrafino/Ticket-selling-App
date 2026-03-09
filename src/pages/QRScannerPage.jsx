@@ -2,6 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { verifyTicket } from '../db';
 import Navbar from '../components/Navbar';
+import { Box, Container, Typography, Button, Paper, Alert } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import ReplayIcon from '@mui/icons-material/Replay';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 export default function QRScannerPage() {
   const navigate = useNavigate();
@@ -12,243 +17,131 @@ export default function QRScannerPage() {
   const html5QrCodeRef = useRef(null);
 
   async function startScanner() {
-    setError('');
-    setScanResult(null);
-    setScanning(true);
-
+    setError(''); setScanResult(null); setScanning(true);
     try {
       const { Html5Qrcode } = await import('html5-qrcode');
       const html5QrCode = new Html5Qrcode('qr-reader');
       html5QrCodeRef.current = html5QrCode;
-
       await html5QrCode.start(
         { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1,
-        },
+        { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1 },
         async (decodedText) => {
-          try {
-            await html5QrCode.stop();
-          } catch (_) {}
-          setScanning(false);
-          handleScanResult(decodedText);
+          try { await html5QrCode.stop(); } catch (_) {}
+          setScanning(false); handleScanResult(decodedText);
         },
         () => {}
       );
     } catch (err) {
-      console.error('Scanner error:', err);
-      setError('Unable to access camera. Please grant camera permission and try again.');
+      setError('Unable to access camera. Please grant camera permission.');
       setScanning(false);
     }
   }
 
   function handleScanResult(decodedText) {
     try {
-      // Try parsing as JSON (ticket data embedded in QR)
       const data = JSON.parse(decodedText);
-      const ticketId = data.id;
-
-      if (!ticketId) {
-        setScanResult({ status: 'not_found' });
-        return;
-      }
-
-      // Verify against local verification store
-      const result = verifyTicket(ticketId);
-
+      if (!data.id) { setScanResult({ status: 'not_found' }); return; }
+      const result = verifyTicket(data.id);
       setScanResult({
-        status: result.status,
-        ticketId,
-        ticket: result.ticket || {
-          buyerName: data.name,
-          filiere: data.filiere,
-          games: data.games,
-          phone: data.phone,
-          sellerName: data.seller,
-        },
+        status: result.status, ticketId: data.id,
+        ticket: result.ticket || { buyerName: data.name, filiere: data.filiere, games: data.games, phone: data.phone, sellerName: data.seller },
       });
     } catch {
-      // If not valid JSON, treat as plain ticket ID
       const result = verifyTicket(decodedText);
-      if (result.ticket) {
-        setScanResult({ status: result.status, ticketId: decodedText, ticket: result.ticket });
-      } else {
-        setScanResult({ status: 'not_found', ticketId: decodedText });
-      }
+      setScanResult(result.ticket
+        ? { status: result.status, ticketId: decodedText, ticket: result.ticket }
+        : { status: 'not_found', ticketId: decodedText });
     }
   }
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (html5QrCodeRef.current) {
-        try { html5QrCodeRef.current.stop(); } catch (_) {}
-      }
-    };
-  }, []);
-
-  function handleScanAgain() {
-    setScanResult(null);
-    startScanner();
-  }
+  useEffect(() => () => { if (html5QrCodeRef.current) try { html5QrCodeRef.current.stop(); } catch (_) {} }, []);
 
   const statusConfig = {
-    valid: {
-      icon: '✅',
-      title: 'Ticket Valid!',
-      subtitle: 'Entry confirmed',
-      color: 'from-emerald-500/20 to-emerald-600/10',
-      border: 'border-emerald-500/30',
-      textColor: 'text-emerald-400',
-    },
-    already_used: {
-      icon: '⚠️',
-      title: 'Already Used',
-      subtitle: 'This ticket has already been verified',
-      color: 'from-amber-500/20 to-amber-600/10',
-      border: 'border-amber-500/30',
-      textColor: 'text-amber-400',
-    },
-    not_found: {
-      icon: '❌',
-      title: 'Not Found',
-      subtitle: 'This QR code is not a valid ticket',
-      color: 'from-red-500/20 to-red-600/10',
-      border: 'border-red-500/30',
-      textColor: 'text-red-400',
-    },
+    valid: { icon: '✅', title: 'Ticket Valid!', subtitle: 'Entry confirmed', color: '#22c55e', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.25)' },
+    already_used: { icon: '⚠️', title: 'Already Used', subtitle: 'This ticket was already verified', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)' },
+    not_found: { icon: '❌', title: 'Not Found', subtitle: 'Not a valid ticket QR code', color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.25)' },
   };
 
   return (
-    <div className="min-h-screen bg-dark-900 bg-mesh">
+    <Box sx={{ minHeight: '100vh' }} className="bg-mesh">
       <Navbar />
-      <main className="max-w-lg mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8 animate-slide-up">
-          <button
-            onClick={() => navigate('/admin')}
-            className="flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-4"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Dashboard
-          </button>
-          <h1 className="text-3xl font-display font-bold text-white">
+      <Container maxWidth="sm" sx={{ py: { xs: 3, sm: 4 } }}>
+        <Box sx={{ mb: 3 }} className="animate-slide-up">
+          <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/admin')}
+            sx={{ color: 'text.secondary', mb: 2, '&:hover': { color: '#fff' } }}>Back to Dashboard</Button>
+          <Typography variant="h4" sx={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
             QR <span className="gradient-text">Scanner</span>
-          </h1>
-          <p className="text-white/40 mt-1">Scan tickets to verify entry</p>
-        </div>
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>Scan tickets to verify entry</Typography>
+        </Box>
 
-        {/* Scanner Area */}
         {!scanResult && (
-          <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <div className="glass-card neon-border overflow-hidden">
-              <div
-                id="qr-reader"
-                ref={scannerRef}
-                className="w-full"
-                style={{ minHeight: scanning ? '300px' : '0' }}
-              />
+          <Box className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <Paper sx={{ borderRadius: 3, border: '1px solid rgba(0,212,255,0.12)', overflow: 'hidden' }}>
+              <div id="qr-reader" ref={scannerRef} style={{ width: '100%', minHeight: scanning ? 300 : 0 }} />
               {!scanning && (
-                <div className="p-8 text-center">
-                  <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-neon-blue/10 to-neon-purple/10 flex items-center justify-center">
-                    <svg className="w-10 h-10 text-neon-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                    </svg>
-                  </div>
-                  <p className="text-white/50 mb-6">Point your camera at a ticket QR code</p>
-                  <button
-                    id="start-scan-btn"
-                    onClick={startScanner}
-                    className="btn-primary inline-flex items-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                <Box sx={{ p: { xs: 4, sm: 5 }, textAlign: 'center' }}>
+                  <Box sx={{
+                    width: 72, height: 72, mx: 'auto', mb: 3, borderRadius: 3,
+                    background: 'linear-gradient(135deg, rgba(0,212,255,0.1), rgba(168,85,247,0.1))',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <CameraAltIcon sx={{ fontSize: 36, color: '#00d4ff' }} />
+                  </Box>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>Point your camera at a ticket QR code</Typography>
+                  <Button id="start-scan-btn" variant="contained" color="primary" startIcon={<CameraAltIcon />} onClick={startScanner}>
                     Start Scanning
-                  </button>
-                </div>
+                  </Button>
+                </Box>
               )}
-            </div>
-
-            {error && (
-              <div className="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm animate-fade-in">
-                {error}
-              </div>
-            )}
-          </div>
+            </Paper>
+            {error && <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>{error}</Alert>}
+          </Box>
         )}
 
-        {/* Scan Result */}
         {scanResult && (
-          <div className="animate-slide-up">
+          <Box className="animate-slide-up">
             {(() => {
-              const config = statusConfig[scanResult.status];
+              const cfg = statusConfig[scanResult.status];
               return (
-                <div className={`rounded-2xl border ${config.border} bg-gradient-to-br ${config.color} p-8`}>
-                  <div className="text-center mb-6">
-                    <span className="text-6xl block mb-4">{config.icon}</span>
-                    <h2 className={`text-2xl font-display font-bold ${config.textColor}`}>{config.title}</h2>
-                    <p className="text-white/40 text-sm mt-1">{config.subtitle}</p>
-                  </div>
-
+                <Paper sx={{ p: { xs: 3, sm: 4 }, borderRadius: 3, bgcolor: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                  <Box sx={{ textAlign: 'center', mb: 3 }}>
+                    <Typography sx={{ fontSize: '3.5rem', mb: 1 }}>{cfg.icon}</Typography>
+                    <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 700, color: cfg.color }}>{cfg.title}</Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>{cfg.subtitle}</Typography>
+                  </Box>
                   {scanResult.ticket && (
-                    <div className="space-y-3 mt-6 p-4 rounded-xl bg-white/5 border border-white/5">
-                      <div className="flex justify-between">
-                        <span className="text-white/40 text-sm">Name</span>
-                        <span className="text-white text-sm font-semibold">{scanResult.ticket.buyerName}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-white/40 text-sm">Filière</span>
-                        <span className="text-white text-sm">{scanResult.ticket.filiere}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-white/40 text-sm">Activities</span>
-                        <span className="text-white text-sm text-right">{scanResult.ticket.games?.join(', ')}</span>
-                      </div>
-                      {scanResult.ticket.sellerName && (
-                        <div className="flex justify-between">
-                          <span className="text-white/40 text-sm">Seller</span>
-                          <span className="text-white text-sm">{scanResult.ticket.sellerName}</span>
-                        </div>
-                      )}
-                    </div>
+                    <Paper sx={{ p: 2.5, borderRadius: 2, bgcolor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      {[
+                        ['Name', scanResult.ticket.buyerName],
+                        ['Filière', scanResult.ticket.filiere],
+                        ['Activities', scanResult.ticket.games?.join(', ')],
+                        scanResult.ticket.sellerName && ['Seller', scanResult.ticket.sellerName],
+                      ].filter(Boolean).map(([label, val]) => (
+                        <Box key={label} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.8 }}>
+                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>{label}</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600, textAlign: 'right' }}>{val}</Typography>
+                        </Box>
+                      ))}
+                    </Paper>
                   )}
-
                   {scanResult.ticketId && (
-                    <p className="text-white/20 text-xs font-mono text-center mt-4">
+                    <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 2, color: 'text.disabled', fontFamily: 'monospace' }}>
                       ID: {scanResult.ticketId.slice(0, 12).toUpperCase()}
-                    </p>
+                    </Typography>
                   )}
-                </div>
+                </Paper>
               );
             })()}
-
-            <div className="flex gap-3 mt-6">
-              <button
-                id="scan-again-btn"
-                onClick={handleScanAgain}
-                className="btn-primary flex-1 flex items-center justify-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Scan Again
-              </button>
-              <button
-                onClick={() => navigate('/admin')}
-                className="btn-secondary flex-1"
-              >
-                Dashboard
-              </button>
-            </div>
-          </div>
+            <Box sx={{ display: 'flex', gap: 1.5, mt: 3 }}>
+              <Button id="scan-again-btn" variant="contained" color="primary" fullWidth
+                startIcon={<ReplayIcon />} onClick={() => { setScanResult(null); startScanner() }}>Scan Again</Button>
+              <Button variant="outlined" fullWidth startIcon={<DashboardIcon />} onClick={() => navigate('/admin')}
+                sx={{ borderColor: 'rgba(255,255,255,0.15)', color: 'text.secondary' }}>Dashboard</Button>
+            </Box>
+          </Box>
         )}
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 }

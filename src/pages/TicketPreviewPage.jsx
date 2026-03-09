@@ -3,73 +3,58 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getTicketById } from '../db';
 import Navbar from '../components/Navbar';
 import PremiumTicketCard from '../components/PremiumTicketCard';
+import { Box, Container, Typography, Button, Paper } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function TicketPreviewPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [ticket, setTicket] = useState(null);
 
-  useEffect(() => {
-    const t = getTicketById(id);
-    setTicket(t);
-  }, [id]);
+  useEffect(() => { setTicket(getTicketById(id)); }, [id]);
 
   if (!ticket) {
     return (
-      <div className="min-h-screen bg-dark-900 bg-mesh">
+      <Box sx={{ minHeight: '100vh' }} className="bg-mesh">
         <Navbar />
-        <div className="flex items-center justify-center py-32">
-          <div className="glass-card neon-border p-8 text-center max-w-md">
-            <span className="text-5xl block mb-4">❌</span>
-            <h2 className="text-xl font-display font-bold text-white mb-2">Ticket Not Found</h2>
-            <p className="text-white/50 mb-6">This ticket doesn't exist or has been removed.</p>
-            <button onClick={() => navigate('/seller')} className="btn-primary">
-              Back to Dashboard
-            </button>
-          </div>
-        </div>
-      </div>
+        <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }}>
+          <Paper sx={{ p: 5, borderRadius: 3, textAlign: 'center' }}>
+            <Typography sx={{ fontSize: '3rem', mb: 2 }}>❌</Typography>
+            <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 700, mb: 1 }}>Ticket Not Found</Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>This ticket doesn't exist or has been removed.</Typography>
+            <Button variant="contained" color="primary" onClick={() => navigate('/seller')}>Back to Dashboard</Button>
+          </Paper>
+        </Container>
+      </Box>
     );
   }
 
   return (
-    <div className="min-h-screen bg-dark-900 bg-mesh">
+    <Box sx={{ minHeight: '100vh' }} className="bg-mesh">
       <Navbar />
-      <main className="max-w-lg mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-6 animate-slide-up">
-          <button
-            onClick={() => navigate('/seller')}
-            className="flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-4"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+      <Container maxWidth="sm" sx={{ py: { xs: 3, sm: 4 } }}>
+        <Box sx={{ mb: 3 }} className="animate-slide-up">
+          <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/seller')}
+            sx={{ color: 'text.secondary', mb: 2, '&:hover': { color: '#fff' } }}>
             Back to Dashboard
-          </button>
-          <h1 className="text-2xl font-display font-bold text-white">
+          </Button>
+          <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 700 }}>
             Ticket <span className="gradient-text">Preview</span>
-          </h1>
-          <p className="text-white/40 text-sm mt-1">Share this ticket with the buyer</p>
-        </div>
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>Share this ticket with the buyer</Typography>
+        </Box>
 
-        {/* Premium Ticket */}
         <PremiumTicketCard ticket={ticket} ticketId={id} />
 
-        {/* Create Another */}
-        <div className="mt-6 text-center animate-slide-up" style={{ animationDelay: '0.3s' }}>
-          <button
-            id="create-another-btn"
+        <Box sx={{ mt: 3, textAlign: 'center' }} className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <Button id="create-another-btn" variant="outlined" startIcon={<AddIcon />}
             onClick={() => navigate('/seller/new-ticket')}
-            className="btn-secondary inline-flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            sx={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.7)', '&:hover': { borderColor: 'rgba(255,255,255,0.3)', color: '#fff', bgcolor: 'rgba(255,255,255,0.05)' } }}>
             Create Another Ticket
-          </button>
-        </div>
-      </main>
-    </div>
+          </Button>
+        </Box>
+      </Container>
+    </Box>
   );
 }

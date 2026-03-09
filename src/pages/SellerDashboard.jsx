@@ -1,112 +1,126 @@
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { getTicketsBySeller } from '../db';
 import Navbar from '../components/Navbar';
+import {
+  Box, Container, Typography, Button, Grid, Paper, Chip,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 export default function SellerDashboard() {
   const { currentUser, userData } = useAuth();
-  const navigate = useNavigate();
   const [stats, setStats] = useState({ today: 0, total: 0 });
   const [recentTickets, setRecentTickets] = useState([]);
 
   useEffect(() => {
     const tickets = getTicketsBySeller(currentUser.id);
-
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    const todayTickets = tickets.filter(t =>
-      new Date(t.createdAt) >= todayStart
-    );
-
+    const todayTickets = tickets.filter(t => new Date(t.createdAt) >= todayStart);
     setStats({ today: todayTickets.length, total: tickets.length });
     setRecentTickets(tickets.slice(-5).reverse());
   }, [currentUser]);
 
+  const statCards = [
+    { label: "Today's Sales", value: stats.today, icon: <CalendarTodayIcon />, color: 'rgba(0,212,255,0.1)', iconColor: '#00d4ff' },
+    { label: 'Total Tickets Sold', value: stats.total, icon: <ConfirmationNumberIcon />, color: 'rgba(168,85,247,0.1)', iconColor: '#a855f7' },
+  ];
+
   return (
-    <div className="min-h-screen bg-dark-900 bg-mesh">
+    <Box sx={{ minHeight: '100vh' }} className="bg-mesh">
       <Navbar />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <Container maxWidth="lg" sx={{ py: { xs: 3, sm: 4 } }}>
         {/* Header */}
-        <div className="mb-8 animate-slide-up">
-          <h1 className="text-3xl font-display font-bold text-white">
+        <Box sx={{ mb: 4 }} className="animate-slide-up">
+          <Typography variant="h4" sx={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
             Welcome back, <span className="gradient-text">{userData?.displayName || 'Seller'}</span>
-          </h1>
-          <p className="text-white/40 mt-1">Manage your ticket sales</p>
-        </div>
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>Manage your ticket sales</Typography>
+        </Box>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          <div className="stat-card animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-neon-blue/10 flex items-center justify-center">
-                <span className="text-xl">📅</span>
-              </div>
-              <span className="text-white/50 text-sm">Today's Sales</span>
-            </div>
-            <p className="text-3xl font-display font-bold text-white">{stats.today}</p>
-          </div>
-          <div className="stat-card animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-neon-purple/10 flex items-center justify-center">
-                <span className="text-xl">🎫</span>
-              </div>
-              <span className="text-white/50 text-sm">Total Tickets Sold</span>
-            </div>
-            <p className="text-3xl font-display font-bold text-white">{stats.total}</p>
-          </div>
-        </div>
+        <Grid container spacing={2} sx={{ mb: 4 }}>
+          {statCards.map((card, i) => (
+            <Grid size={{ xs: 6 }} key={i}>
+              <Paper className="animate-slide-up" sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: '1px solid rgba(0,212,255,0.15)', boxShadow: '0 0 15px rgba(0,212,255,0.05)', animationDelay: `${0.1 * (i + 1)}s` }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+                  <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: card.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: card.iconColor }}>
+                    {card.icon}
+                  </Box>
+                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>{card.label}</Typography>
+                </Box>
+                <Typography variant="h4" sx={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                  {card.value}
+                </Typography>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
 
-        {/* Create Ticket Button */}
-        <div className="mb-8 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-          <Link to="/seller/new-ticket" className="btn-primary inline-flex items-center gap-2 text-lg">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+        {/* Create Ticket */}
+        <Box sx={{ mb: 4 }} className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <Button
+            component={Link} to="/seller/new-ticket"
+            variant="contained" color="primary" size="large"
+            startIcon={<AddIcon />}
+            sx={{ fontSize: '1.05rem', py: 1.5, px: 3 }}
+          >
             Create New Ticket
-          </Link>
-        </div>
+          </Button>
+        </Box>
 
         {/* Recent Tickets */}
-        <div className="glass-card neon-border overflow-hidden animate-slide-up" style={{ animationDelay: '0.4s' }}>
-          <div className="px-6 py-4 border-b border-white/5">
-            <h2 className="text-lg font-display font-semibold text-white">Recent Tickets</h2>
-          </div>
+        <Paper className="animate-slide-up" sx={{ borderRadius: 3, border: '1px solid rgba(0,212,255,0.15)', overflow: 'hidden', animationDelay: '0.4s' }}>
+          <Box sx={{ px: 3, py: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+            <Typography variant="h6" sx={{ fontFamily: 'Outfit', fontWeight: 600 }}>Recent Tickets</Typography>
+          </Box>
           {recentTickets.length === 0 ? (
-            <div className="p-8 text-center text-white/30">
-              <span className="text-4xl block mb-2">🎫</span>
-              No tickets yet. Create your first ticket!
-            </div>
+            <Box sx={{ p: 5, textAlign: 'center', color: 'text.secondary' }}>
+              <Typography sx={{ fontSize: '2.5rem', mb: 1 }}>🎫</Typography>
+              <Typography>No tickets yet. Create your first ticket!</Typography>
+            </Box>
           ) : (
-            <div className="divide-y divide-white/5">
+            <Box>
               {recentTickets.map(ticket => (
-                <Link
+                <Box
                   key={ticket.id}
-                  to={`/seller/ticket/${ticket.id}`}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-white/5 transition-colors"
+                  component={Link} to={`/seller/ticket/${ticket.id}`}
+                  sx={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    px: 3, py: 2, textDecoration: 'none', color: 'inherit',
+                    borderBottom: '1px solid rgba(255,255,255,0.03)',
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' },
+                    transition: 'background 0.2s',
+                  }}
                 >
-                  <div>
-                    <p className="text-white font-medium">{ticket.buyerName}</p>
-                    <p className="text-white/40 text-sm">{ticket.filiere} · {ticket.games?.join(', ')}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      ticket.verified
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                        : 'bg-neon-blue/10 text-neon-blue border border-neon-blue/20'
-                    }`}>
-                      {ticket.verified ? '✓ Verified' : 'Active'}
-                    </span>
-                    <svg className="w-5 h-5 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </Link>
+                  <Box>
+                    <Typography variant="body1" sx={{ fontWeight: 500, color: '#fff' }}>{ticket.buyerName}</Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      {ticket.filiere} · {ticket.games?.join(', ')}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Chip
+                      label={ticket.verified ? '✓ Verified' : 'Active'}
+                      size="small"
+                      sx={{
+                        bgcolor: ticket.verified ? 'rgba(34,197,94,0.1)' : 'rgba(0,212,255,0.1)',
+                        color: ticket.verified ? '#22c55e' : '#00d4ff',
+                        border: `1px solid ${ticket.verified ? 'rgba(34,197,94,0.2)' : 'rgba(0,212,255,0.2)'}`,
+                      }}
+                    />
+                    <ChevronRightIcon sx={{ color: 'rgba(255,255,255,0.2)', fontSize: 20 }} />
+                  </Box>
+                </Box>
               ))}
-            </div>
+            </Box>
           )}
-        </div>
-      </main>
-    </div>
+        </Paper>
+      </Container>
+    </Box>
   );
 }

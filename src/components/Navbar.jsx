@@ -1,11 +1,23 @@
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Link, useLocation } from 'react-router-dom';
+import {
+  AppBar, Toolbar, Box, IconButton, Typography, Button,
+  Drawer, List, ListItem, ListItemIcon, ListItemText, useMediaQuery,
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import MenuIcon from '@mui/icons-material/Menu';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 export default function Navbar() {
   const { currentUser, userRole, userData, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const muiTheme = useTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   async function handleLogout() {
     try {
@@ -19,62 +31,106 @@ export default function Navbar() {
   const isAdmin = userRole === 'admin';
   const basePath = isAdmin ? '/admin' : '/seller';
 
-  return (
-    <nav className="sticky top-0 z-50 bg-dark-900/80 backdrop-blur-xl border-b border-white/5">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link to={basePath} className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center shadow-lg shadow-neon-purple/20 group-hover:shadow-neon-purple/40 transition-shadow">
-            <span className="text-lg">🎮</span>
-          </div>
-          <span className="text-lg font-display font-bold gradient-text hidden sm:block">GameTix</span>
-        </Link>
+  const adminLinks = [
+    { label: 'Dashboard', path: '/admin', icon: <DashboardIcon /> },
+    { label: 'Scanner', path: '/admin/scanner', icon: <QrCodeScannerIcon /> },
+  ];
 
-        {/* Right side */}
-        <div className="flex items-center gap-4">
-          {isAdmin && (
-            <div className="hidden sm:flex items-center gap-1">
-              <Link
-                to="/admin"
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  location.pathname === '/admin'
-                    ? 'bg-white/10 text-white'
-                    : 'text-white/50 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/admin/scanner"
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  location.pathname === '/admin/scanner'
-                    ? 'bg-white/10 text-white'
-                    : 'text-white/50 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Scanner
-              </Link>
-            </div>
+  return (
+    <>
+      <AppBar position="sticky">
+        <Toolbar sx={{ maxWidth: 1200, mx: 'auto', width: '100%', px: { xs: 2, sm: 3 } }}>
+          {isMobile && isAdmin && (
+            <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)} sx={{ mr: 1 }}>
+              <MenuIcon />
+            </IconButton>
           )}
 
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm text-white font-medium">{userData?.displayName}</p>
-              <p className="text-xs text-white/40 capitalize">{userRole}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              id="logout-btn"
-              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all"
-              title="Logout"
+          <Link to={basePath} className="flex items-center gap-2 no-underline group">
+            <Box sx={{
+              width: 36, height: 36, borderRadius: 2,
+              background: 'linear-gradient(135deg, #00d4ff, #a855f7)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(168,85,247,0.2)',
+              transition: 'box-shadow 0.3s',
+              '&:hover': { boxShadow: '0 4px 20px rgba(168,85,247,0.4)' },
+            }}>
+              <span className="text-lg">🎮</span>
+            </Box>
+            <Typography variant="h6" className="gradient-text" sx={{ display: { xs: 'none', sm: 'block' }, fontFamily: 'Outfit', fontWeight: 700 }}>
+              GameTix
+            </Typography>
+          </Link>
+
+          <Box sx={{ flex: 1 }} />
+
+          {isAdmin && !isMobile && (
+            <Box sx={{ display: 'flex', gap: 0.5, mr: 2 }}>
+              {adminLinks.map(link => (
+                <Button
+                  key={link.path}
+                  component={Link}
+                  to={link.path}
+                  startIcon={link.icon}
+                  size="small"
+                  sx={{
+                    color: location.pathname === link.path ? '#fff' : 'rgba(255,255,255,0.5)',
+                    bgcolor: location.pathname === link.path ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' },
+                    borderRadius: 2, px: 2,
+                  }}
+                >
+                  {link.label}
+                </Button>
+              ))}
+            </Box>
+          )}
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
+              <Typography variant="body2" sx={{ color: '#fff', fontWeight: 500, lineHeight: 1.2 }}>
+                {userData?.displayName}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', textTransform: 'capitalize' }}>
+                {userRole}
+              </Typography>
+            </Box>
+            <IconButton onClick={handleLogout} id="logout-btn" sx={{ color: 'rgba(255,255,255,0.6)', '&:hover': { color: '#fff', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+              <LogoutIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      {/* Mobile drawer for admin */}
+      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}
+        PaperProps={{ sx: { bgcolor: '#0f0f2e', width: 260, borderRight: '1px solid rgba(255,255,255,0.05)' } }}
+      >
+        <Box sx={{ p: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <Typography variant="h6" className="gradient-text" sx={{ fontFamily: 'Outfit', fontWeight: 700 }}>
+            🎮 GameTix
+          </Typography>
+        </Box>
+        <List>
+          {adminLinks.map(link => (
+            <ListItem
+              key={link.path}
+              component={Link}
+              to={link.path}
+              onClick={() => setDrawerOpen(false)}
+              sx={{
+                borderRadius: 2, mx: 1, mb: 0.5, width: 'auto',
+                bgcolor: location.pathname === link.path ? 'rgba(168,85,247,0.15)' : 'transparent',
+                color: location.pathname === link.path ? '#a855f7' : 'rgba(255,255,255,0.6)',
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+              }}
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
+              <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>{link.icon}</ListItemIcon>
+              <ListItemText primary={link.label} />
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+    </>
   );
 }
